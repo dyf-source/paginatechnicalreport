@@ -1,0 +1,14 @@
+# Configuración local del agente / IDE
+.claude/
+
+# Capturas temporales de previsualización
+_preview.png
+
+# Archivos del sistema operativo
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Dependencias (por si más adelante se agrega tooling)
+node_modules/

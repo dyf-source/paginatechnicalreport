@@ -20,28 +20,99 @@ nav.querySelectorAll('a').forEach((link) => {
   });
 });
 
-// Validación básica del formulario (demo, sin backend)
+// Formularios — abren el cliente de correo del visitante (mailto)
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RECIPIENTS = 'info@technicalreport.com.ar,unchalofelipe@gmail.com';
+
+function openMailto(subject, lines) {
+  const body = lines.filter((l) => l !== null).join('\n');
+  window.location.href = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 const form = document.getElementById('contactForm');
 const note = document.getElementById('formNote');
 
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  note.className = 'form-note';
+if (form) {
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    note.className = 'form-note';
 
-  const nombre = form.nombre.value.trim();
-  const email = form.email.value.trim();
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const nombre = form.nombre.value.trim();
+    const email = form.email.value.trim();
 
-  if (!nombre || !emailOk) {
-    note.textContent = 'Completá tu nombre y un email válido.';
-    note.classList.add('err');
-    return;
-  }
+    if (!nombre || !EMAIL_RE.test(email)) {
+      note.textContent = 'Completá tu nombre y un email válido.';
+      note.classList.add('err');
+      return;
+    }
 
-  note.textContent = '¡Gracias! Recibimos tu solicitud y te contactaremos pronto.';
-  note.classList.add('ok');
-  form.reset();
-});
+    const telefono = form.telefono.value.trim();
+    const equipo = form.equipo.value;
+    const mensaje = form.mensaje.value.trim();
+
+    openMailto('Solicitud de inspección — Technical Report', [
+      `Nombre / empresa: ${nombre}`,
+      `Email: ${email}`,
+      telefono ? `Teléfono: ${telefono}` : null,
+      equipo ? `Equipo: ${equipo}` : null,
+      '',
+      mensaje,
+    ]);
+
+    note.textContent = 'Abrimos tu correo para enviar la solicitud. Si no se abre, escribinos a info@technicalreport.com.ar.';
+    note.classList.add('ok');
+    form.reset();
+  });
+}
+
+// Modal de opiniones
+const fbModal = document.getElementById('feedbackModal');
+const fbOpen = document.getElementById('feedbackOpen');
+const fbClose = document.getElementById('feedbackClose');
+const fbForm = document.getElementById('feedbackForm');
+const fbNote = document.getElementById('feedbackNote');
+
+if (fbModal && fbOpen) {
+  fbOpen.addEventListener('click', () => {
+    fbNote.textContent = '';
+    fbNote.className = 'form-note';
+    fbModal.showModal();
+  });
+
+  fbClose.addEventListener('click', () => fbModal.close());
+
+  // Cerrar al hacer clic fuera del contenido
+  fbModal.addEventListener('click', (e) => {
+    if (e.target === fbModal) fbModal.close();
+  });
+
+  fbForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    fbNote.className = 'form-note';
+
+    const nombre = fbForm.nombre.value.trim();
+    const email = fbForm.email.value.trim();
+    const mensaje = fbForm.mensaje.value.trim();
+
+    if (!nombre || !EMAIL_RE.test(email) || !mensaje) {
+      fbNote.textContent = 'Completá tu nombre, un email válido y tu opinión.';
+      fbNote.classList.add('err');
+      return;
+    }
+
+    openMailto('Opinión — Technical Report', [
+      `Nombre / empresa: ${nombre}`,
+      `Email: ${email}`,
+      '',
+      mensaje,
+    ]);
+
+    fbNote.textContent = 'Abrimos tu correo para enviar tu opinión.';
+    fbNote.classList.add('ok');
+    fbForm.reset();
+    setTimeout(() => fbModal.close(), 1500);
+  });
+}
 
 // Resaltar el enlace de navegación según la sección visible
 const sections = document.querySelectorAll('section[id]');

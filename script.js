@@ -22,11 +22,13 @@ nav.querySelectorAll('a').forEach((link) => {
 
 // Formularios — abren el cliente de correo del visitante (mailto)
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const RECIPIENTS = 'info@technicalreport.com.ar,unchalofelipe@gmail.com';
+const RECIPIENT = 'info@technicalreport.com.ar';
+const RECIPIENT_CC = 'victorandres.torres@copime.org.ar';
 
 function openMailto(subject, lines) {
   const body = lines.filter((l) => l !== null).join('\n');
-  window.location.href = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const query = `cc=${encodeURIComponent(RECIPIENT_CC)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = `mailto:${RECIPIENT}?${query}`;
 }
 
 const form = document.getElementById('contactForm');
@@ -46,15 +48,19 @@ if (form) {
       return;
     }
 
+    const cuit = form.cuit.value.trim();
     const telefono = form.telefono.value.trim();
     const equipo = form.equipo.value;
+    const modelo = form.modelo.value.trim();
     const mensaje = form.mensaje.value.trim();
 
     openMailto('Solicitud de inspección — Technical Report', [
       `Nombre / empresa: ${nombre}`,
+      cuit ? `CUIT / CUIL: ${cuit}` : null,
       `Email: ${email}`,
       telefono ? `Teléfono: ${telefono}` : null,
       equipo ? `Equipo: ${equipo}` : null,
+      modelo ? `Modelo/s: ${modelo}` : null,
       '',
       mensaje,
     ]);

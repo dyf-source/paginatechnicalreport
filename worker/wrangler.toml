@@ -1,0 +1,6 @@
+name = "technicalreport-contact"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+# RESEND_API_KEY se guarda como secret, no acá:
+#   npx wrangler secret put RESEND_API_KEY

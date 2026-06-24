@@ -20,22 +20,25 @@ nav.querySelectorAll('a').forEach((link) => {
   });
 });
 
-// Formularios — abren el cliente de correo del visitante (mailto)
+// Formularios — envío al Worker de Cloudflare (Resend)
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const RECIPIENT = 'info@technicalreport.com.ar';
-const RECIPIENT_CC = 'victorandres.torres@copime.org.ar';
+const ENDPOINT = 'https://technicalreport-contact.technicalreportnetadmin.workers.dev';
 
-function openMailto(subject, lines) {
-  const body = lines.filter((l) => l !== null).join('\n');
-  const query = `cc=${encodeURIComponent(RECIPIENT_CC)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href = `mailto:${RECIPIENT}?${query}`;
+async function postForm(payload) {
+  const res = await fetch(ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok) throw new Error(data.error || 'Error de envío');
 }
 
 const form = document.getElementById('contactForm');
 const note = document.getElementById('formNote');
 
 if (form) {
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     note.className = 'form-note';
 
@@ -49,24 +52,31 @@ if (form) {
       return;
     }
 
-    const telefono = form.telefono.value.trim();
-    const equipo = form.equipo.value;
-    const modelo = form.modelo.value.trim();
-    const mensaje = form.mensaje.value.trim();
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    note.textContent = 'Enviando…';
 
-    openMailto('Solicitud de inspección — Technical Report', [
-      `Nombre / empresa: ${nombre}`,
-      `CUIT / CUIL: ${cuit}`,
-      telefono ? `Teléfono: ${telefono}` : null,
-      equipo ? `Equipo: ${equipo}` : null,
-      modelo ? `Modelo/s: ${modelo}` : null,
-      '',
-      mensaje,
-    ]);
-
-    note.textContent = 'Abrimos tu correo para enviar la solicitud. Si no se abre, escribinos a info@technicalreport.com.ar.';
-    note.classList.add('ok');
-    form.reset();
+    try {
+      await postForm({
+        tipo: 'inspeccion',
+        nombre,
+        email,
+        cuit,
+        telefono: form.telefono.value.trim(),
+        equipo: form.equipo.value,
+        modelo: form.modelo.value.trim(),
+        mensaje: form.mensaje.value.trim(),
+        _gotcha: form._gotcha.value,
+      });
+      note.textContent = '¡Gracias! Recibimos tu solicitud y te contactaremos pronto.';
+      note.classList.add('ok');
+      form.reset();
+    } catch (err) {
+      note.textContent = 'No se pudo enviar. Probá de nuevo o escribinos a info@technicalreport.com.ar.';
+      note.classList.add('err');
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 }
 
@@ -91,7 +101,7 @@ if (fbModal && fbOpen) {
     if (e.target === fbModal) fbModal.close();
   });
 
-  fbForm.addEventListener('submit', (e) => {
+  fbForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     fbNote.className = 'form-note';
 
@@ -105,16 +115,28 @@ if (fbModal && fbOpen) {
       return;
     }
 
-    openMailto('Opinión — Technical Report', [
-      `Nombre / empresa: ${nombre}`,
-      '',
-      mensaje,
-    ]);
+    const submitBtn = fbForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    fbNote.textContent = 'Enviando…';
 
-    fbNote.textContent = 'Abrimos tu correo para enviar tu opinión.';
-    fbNote.classList.add('ok');
-    fbForm.reset();
-    setTimeout(() => fbModal.close(), 1500);
+    try {
+      await postForm({
+        tipo: 'opinion',
+        nombre,
+        email,
+        mensaje,
+        _gotcha: fbForm._gotcha.value,
+      });
+      fbNote.textContent = '¡Gracias por tu opinión!';
+      fbNote.classList.add('ok');
+      fbForm.reset();
+      setTimeout(() => fbModal.close(), 1500);
+    } catch (err) {
+      fbNote.textContent = 'No se pudo enviar. Probá de nuevo más tarde.';
+      fbNote.classList.add('err');
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 }
 

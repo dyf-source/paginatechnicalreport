@@ -41,14 +41,14 @@ if (form) {
 
     const nombre = form.nombre.value.trim();
     const email = form.email.value.trim();
+    const cuit = form.cuit.value.trim();
 
-    if (!nombre || !EMAIL_RE.test(email)) {
-      note.textContent = 'Completá tu nombre y un email válido.';
+    if (!nombre || !cuit || !EMAIL_RE.test(email)) {
+      note.textContent = 'Completá tu nombre, CUIT / CUIL y un email válido.';
       note.classList.add('err');
       return;
     }
 
-    const cuit = form.cuit.value.trim();
     const telefono = form.telefono.value.trim();
     const equipo = form.equipo.value;
     const modelo = form.modelo.value.trim();
@@ -56,8 +56,7 @@ if (form) {
 
     openMailto('Solicitud de inspección — Technical Report', [
       `Nombre / empresa: ${nombre}`,
-      cuit ? `CUIT / CUIL: ${cuit}` : null,
-      `Email: ${email}`,
+      `CUIT / CUIL: ${cuit}`,
       telefono ? `Teléfono: ${telefono}` : null,
       equipo ? `Equipo: ${equipo}` : null,
       modelo ? `Modelo/s: ${modelo}` : null,
@@ -108,7 +107,6 @@ if (fbModal && fbOpen) {
 
     openMailto('Opinión — Technical Report', [
       `Nombre / empresa: ${nombre}`,
-      `Email: ${email}`,
       '',
       mensaje,
     ]);

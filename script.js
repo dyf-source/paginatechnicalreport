@@ -20,6 +20,16 @@ nav.querySelectorAll('a').forEach((link) => {
   });
 });
 
+// Logo: en la home, volver al inicio de la página (el header es sticky, así que
+// un ancla #top no alcanza). En subpáginas el logo navega a ../index.html#top.
+const brand = document.querySelector('.brand');
+if (brand && brand.getAttribute('href') === '#top') {
+  brand.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
 // Formularios — envío al Worker de Cloudflare (Resend)
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ENDPOINT = 'https://technicalreport-contact.technicalreportnetadmin.workers.dev';

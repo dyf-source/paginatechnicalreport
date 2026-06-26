@@ -63,7 +63,7 @@ export default {
       body: JSON.stringify({
         sender: FROM,
         to: [RECIPIENT],
-        // cc: [RECIPIENT_CC], // desactivado temporalmente para pruebas
+        cc: [RECIPIENT_CC],
         subject,
         text_body: text,
         custom_headers: [{ header: 'Reply-To', value: email }],

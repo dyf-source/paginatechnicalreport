@@ -105,12 +105,13 @@ if (fbModal && fbOpen) {
     e.preventDefault();
     fbNote.className = 'form-note';
 
+    const motivo = fbForm.motivo.value.trim();
     const nombre = fbForm.nombre.value.trim();
     const email = fbForm.email.value.trim();
     const mensaje = fbForm.mensaje.value.trim();
 
-    if (!nombre || !EMAIL_RE.test(email) || !mensaje) {
-      fbNote.textContent = 'Completá tu nombre, un email válido y tu opinión.';
+    if (!motivo || !nombre || !EMAIL_RE.test(email) || !mensaje) {
+      fbNote.textContent = 'Completá el motivo, tu nombre, un email válido y tu mensaje.';
       fbNote.classList.add('err');
       return;
     }
@@ -121,13 +122,16 @@ if (fbModal && fbOpen) {
 
     try {
       await postForm({
-        tipo: 'opinion',
+        tipo: 'consulta',
+        motivo,
         nombre,
+        cuit: fbForm.cuit.value.trim(),
         email,
+        asunto: fbForm.asunto.value.trim(),
         mensaje,
         _gotcha: fbForm._gotcha.value,
       });
-      fbNote.textContent = '¡Gracias por tu opinión!';
+      fbNote.textContent = '¡Gracias! Recibimos tu consulta.';
       fbNote.classList.add('ok');
       fbForm.reset();
       setTimeout(() => fbModal.close(), 1500);

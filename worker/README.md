@@ -1,6 +1,6 @@
 # Worker de formularios — Technical Report
 
-Recibe los formularios del sitio (solicitud de inspección y opiniones) y envía el
+Recibe los formularios del sitio (solicitud de inspección y consultas) y envía el
 correo a **info@technicalreport.com.ar** con copia a **victorandres.torres@copime.org.ar**
 usando [SMTP2GO](https://www.smtp2go.com) (API HTTP `/v3/email/send`).
 

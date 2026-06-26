@@ -35,7 +35,9 @@ export default {
     // Honeypot: si un bot rellena este campo oculto, fingimos éxito y no enviamos.
     if (data._gotcha) return json({ ok: true }, 200, cors);
 
-    const tipo = data.tipo === 'opinion' ? 'opinion' : 'inspeccion';
+    const tipo = data.tipo === 'consulta' || data.tipo === 'opinion'
+      ? 'consulta'
+      : 'inspeccion';
     const nombre = (data.nombre || '').trim();
     const email = (data.email || '').trim();
 
@@ -45,8 +47,11 @@ export default {
     if (tipo === 'inspeccion' && !(data.cuit || '').trim()) {
       return json({ ok: false, error: 'Falta CUIT / CUIL' }, 422, cors);
     }
+    if (tipo === 'consulta' && !(data.mensaje || '').trim()) {
+      return json({ ok: false, error: 'Falta el mensaje' }, 422, cors);
+    }
 
-    const { subject, lines } = tipo === 'opinion' ? buildOpinion(data) : buildInspeccion(data);
+    const { subject, lines } = tipo === 'consulta' ? buildConsulta(data) : buildInspeccion(data);
     const text = lines.filter((l) => l !== null).join('\n');
 
     const res = await fetch('https://api.smtp2go.com/v3/email/send', {
@@ -95,13 +100,17 @@ function buildInspeccion(d) {
   };
 }
 
-function buildOpinion(d) {
+function buildConsulta(d) {
+  const motivo = (d.motivo || '').trim();
   return {
-    subject: 'Opinión — Technical Report',
+    subject: `Consulta${motivo ? ` (${motivo})` : ''} — Technical Report`,
     lines: [
-      ...field('Nombre / Empresa', d.nombre),
+      ...field('Motivo', d.motivo),
+      ...field('Nombre y Empresa', d.nombre),
+      ...field('CUIT / CUIL', d.cuit),
       ...field('Email de contacto', d.email),
-      ...field('Opinión', d.mensaje),
+      ...field('Asunto', d.asunto),
+      ...field('Mensaje', d.mensaje),
     ],
   };
 }

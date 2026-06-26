@@ -179,8 +179,8 @@
           <li><span class="ci">⌖</span> <span class="muted-line">Zona de cobertura — a coordinar</span></li>
         </ul>
         <div class="contact-feedback">
-          <p>¿Ya trabajaste con nosotros?</p>
-          <button type="button" class="btn btn-outline" id="feedbackOpen">Dejar una opinión</button>
+          <p>¿Tenés una inquietud, queja o sugerencia?</p>
+          <button type="button" class="btn btn-outline" id="feedbackOpen">Contactanos</button>
         </div>
       </div>
       <form class="contact-form" id="contactForm" novalidate>
@@ -253,27 +253,47 @@
     </div>
   </footer>
 
-  <!-- Modal de opiniones -->
-  <dialog class="modal" id="feedbackModal" aria-labelledby="feedbackTitle">
+  <!-- Modal de contacto / inquietudes -->
+  <dialog class="modal modal-wide" id="feedbackModal" aria-labelledby="feedbackTitle">
     <form class="modal-form" id="feedbackForm" novalidate>
       <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-5000px" />
       <button type="button" class="modal-close" id="feedbackClose" aria-label="Cerrar">&times;</button>
-      <span class="kicker">Tu opinión</span>
-      <h2 id="feedbackTitle">Contanos qué te pareció</h2>
-      <p class="modal-sub">Tu feedback nos ayuda a mejorar el servicio.</p>
+      <span class="kicker">Contacto</span>
+      <h2 id="feedbackTitle">Su inquietud nos importa</h2>
+      <p class="modal-sub">Contanos tu consulta, queja, apelación o sugerencia y te respondemos a la brevedad.</p>
       <div class="field">
-        <label for="fbNombre">Nombre y empresa</label>
+        <label for="fbMotivo">Motivo de su consulta *</label>
+        <select id="fbMotivo" name="motivo" required>
+          <option value="" selected disabled>Seleccioná una opción</option>
+          <option>Consultas generales</option>
+          <option>Queja</option>
+          <option>Apelación</option>
+          <option>Sugerencias</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fbNombre">Nombre y Empresa *</label>
         <input type="text" id="fbNombre" name="nombre" required placeholder="Tu nombre / empresa" />
       </div>
-      <div class="field">
-        <label for="fbEmail">Email</label>
-        <input type="email" id="fbEmail" name="email" required placeholder="tu@email.com" />
+      <div class="field-row">
+        <div class="field">
+          <label for="fbCuit">CUIT / CUIL</label>
+          <input type="text" id="fbCuit" name="cuit" inputmode="numeric" placeholder="Opcional" />
+        </div>
+        <div class="field">
+          <label for="fbEmail">Email *</label>
+          <input type="email" id="fbEmail" name="email" required placeholder="tu@email.com" />
+        </div>
       </div>
       <div class="field">
-        <label for="fbMensaje">Tu opinión</label>
-        <textarea id="fbMensaje" name="mensaje" rows="4" required placeholder="Contanos tu experiencia, sugerencias o comentarios."></textarea>
+        <label for="fbAsunto">Asunto</label>
+        <input type="text" id="fbAsunto" name="asunto" placeholder="Opcional" />
       </div>
-      <button type="submit" class="btn btn-primary btn-block">Enviar opinión</button>
+      <div class="field">
+        <label for="fbMensaje">Mensaje *</label>
+        <textarea id="fbMensaje" name="mensaje" rows="4" required placeholder="Contanos tu inquietud en detalle."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Enviar consulta</button>
       <p class="form-note" id="feedbackNote" role="status"></p>
     </form>
   </dialog>

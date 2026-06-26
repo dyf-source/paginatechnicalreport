@@ -8,6 +8,7 @@ const FROM = 'Technical Report <web@technicalreport.com.ar>';
 const ALLOWED_ORIGINS = [
   'https://technicalreport.com.ar',
   'https://www.technicalreport.com.ar',
+  'https://dyf-source.github.io',
   'http://127.0.0.1:8000',
   'http://localhost:8000',
   'http://127.0.0.1:5501',

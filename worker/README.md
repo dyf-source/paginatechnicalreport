@@ -2,25 +2,24 @@
 
 Recibe los formularios del sitio (solicitud de inspección y opiniones) y envía el
 correo a **info@technicalreport.com.ar** con copia a **victorandres.torres@copime.org.ar**
-usando [Resend](https://resend.com).
+usando [SMTP2GO](https://www.smtp2go.com) (API HTTP `/v3/email/send`).
 
 ## Puesta en marcha
 
-1. **Resend → verificar dominio de envío**
-   - Crear cuenta en Resend.
-   - Domains → Add Domain → `send.technicalreport.com.ar`.
-   - Cargar en Cloudflare DNS los registros que indica Resend (DKIM CNAME, SPF TXT y
-     el MX de rebotes). Todos van sobre el subdominio `send.`, así que **no tocan**
-     el MX/SPF de Google Workspace del dominio raíz.
-   - Esperar a que Resend marque el dominio como *Verified*.
-   - API Keys → crear una key (permiso de envío).
+1. **SMTP2GO → verificar dominio de envío**
+   - Crear cuenta en SMTP2GO.
+   - Sending → Verified Senders → Sender Domains → agregar `technicalreport.com.ar`.
+   - Cargar en Cloudflare DNS los registros CNAME (DKIM/return-path) que indica SMTP2GO.
+     Usan selectores propios, así que **no tocan** el MX/SPF/DKIM de Google Workspace.
+   - Esperar a que SMTP2GO marque el dominio como *Verified*.
+   - Settings → API Keys → crear una API key (empieza con `api-...`).
 
 2. **Desplegar el Worker**
    ```sh
    cd worker
    npm install -g wrangler        # si no lo tenés
    wrangler login
-   wrangler secret put RESEND_API_KEY   # pegar la key de Resend
+   wrangler secret put SMTP2GO_API_KEY   # pegar la API key de SMTP2GO
    wrangler deploy
    ```
    `wrangler deploy` imprime la URL del Worker, por ej.:
@@ -33,5 +32,5 @@ usando [Resend](https://resend.com).
 
 - `ALLOWED_ORIGINS` (en `src/index.js`) limita desde qué orígenes se acepta el POST.
   Agregar/ajustar dominios según dónde se sirva el sitio.
-- El remitente (`FROM`) debe estar en el dominio verificado en Resend.
-- `reply_to` se setea con el email del visitante: al responder, va directo a él.
+- El remitente (`FROM`) debe estar en el dominio verificado en SMTP2GO.
+- El `Reply-To` se setea con el email del visitante: al responder, va directo a él.

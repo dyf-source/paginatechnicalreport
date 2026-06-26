@@ -1,5 +1,5 @@
-// Worker de Technical Report — recibe los formularios del sitio y envía el correo vía Resend.
-// Secret requerido: RESEND_API_KEY (npx wrangler secret put RESEND_API_KEY)
+// Worker de Technical Report — recibe los formularios del sitio y envía el correo vía SMTP2GO.
+// Secret requerido: SMTP2GO_API_KEY (npx wrangler secret put SMTP2GO_API_KEY)
 
 const RECIPIENT = 'info@technicalreport.com.ar';
 const RECIPIENT_CC = 'victorandres.torres@copime.org.ar';
@@ -15,7 +15,6 @@ const ALLOWED_ORIGINS = [
 ];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const esc = (s) => String(s).replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
 
 export default {
   async fetch(request, env) {
@@ -48,27 +47,26 @@ export default {
 
     const { subject, lines } = tipo === 'opinion' ? buildOpinion(data) : buildInspeccion(data);
     const text = lines.filter((l) => l !== null).join('\n');
-    const html = `<pre style="font:14px/1.6 system-ui,Segoe UI,sans-serif;white-space:pre-wrap">${esc(text)}</pre>`;
 
-    const res = await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.smtp2go.com/v3/email/send', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
         'Content-Type': 'application/json',
+        'X-Smtp2go-Api-Key': env.SMTP2GO_API_KEY,
       },
       body: JSON.stringify({
-        from: FROM,
+        sender: FROM,
         to: [RECIPIENT],
         // cc: [RECIPIENT_CC], // desactivado temporalmente para pruebas
-        reply_to: email,
         subject,
-        text,
-        html,
+        text_body: text,
+        custom_headers: [{ header: 'Reply-To', value: email }],
       }),
     });
 
-    if (!res.ok) {
-      console.log('Resend error', res.status, await res.text());
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok || !result?.data?.succeeded) {
+      console.log('SMTP2GO error', res.status, JSON.stringify(result));
       return json({ ok: false, error: 'No se pudo enviar' }, 502, cors);
     }
 
